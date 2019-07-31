@@ -1,9 +1,8 @@
 #!/usr/bin/env bash
-set -x
 set -eo pipefail
 
 usage() {
-cat << EOF
+    cat << EOF
 Push Helm Chart to Nexus repository
 
 This plugin provides ability to push a Helm Chart directory or package to a
@@ -18,6 +17,7 @@ Flags:
   -u, --username string                 Username for authenticated repo (assumes anonymous access if unspecified)
   -p, --password string                 Password for authenticated repo (prompts if unspecified and -u specified)
   --package-parameters "strings"        Add more parameters for packages a chart
+  --debug                               Enable debug mode (use set -x)
 EOF
 }
 
@@ -56,19 +56,22 @@ do
                 PACKAGE_PARAMETERS=$1
             fi
             ;;
+        --debug)
+            set -x
+            ;;
         *)
             POSITIONAL_ARGS+=("$1")
             ;;
-   esac
-   shift
+    esac
+    shift
 done
 [[ ${#POSITIONAL_ARGS[@]} -ne 0 ]] && set -- "${POSITIONAL_ARGS[@]}" # restore positional parameters
 
 if [[ $# -lt 2 ]]; then
-  echo "Missing arguments!"
-  echo "---"
-  usage
-  exit 1
+    echo "Missing arguments!"
+    echo "---"
+    usage
+    exit 1
 fi
 
 indent() { sed 's/^/  /'; }
