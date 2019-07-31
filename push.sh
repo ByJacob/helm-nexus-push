@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-
-set -ueo pipefail
+set -x
+set -eo pipefail
 
 usage() {
 cat << EOF
@@ -17,12 +17,13 @@ Usage:
 Flags:
   -u, --username string                 Username for authenticated repo (assumes anonymous access if unspecified)
   -p, --password string                 Password for authenticated repo (prompts if unspecified and -u specified)
+  --package-parameters "strings"        Add more parameters for packages a chart
 EOF
 }
 
 declare USERNAME
 declare PASSWORD
-
+PACKAGE_PARAMETERS=""
 declare -a POSITIONAL_ARGS=()
 while [[ $# -gt 0 ]]
 do
@@ -47,6 +48,12 @@ do
                 PASSWORD=$1
             else
                 PASSWORD=
+            fi
+            ;;
+        --package-parameters)
+            if [[ -n "${2:-}" ]]; then
+                shift
+                PACKAGE_PARAMETERS=$1
             fi
             ;;
         *)
@@ -117,7 +124,7 @@ case "$2" in
         fi
 
         if [[ -d "$CHART" ]]; then
-            CHART_PACKAGE="$(helm package "$CHART" | cut -d":" -f2 | tr -d '[:space:]')"
+            CHART_PACKAGE="$(helm package $PACKAGE_PARAMETERS "$CHART" | cut -d":" -f2 | tr -d '[:space:]')"
         else
             CHART_PACKAGE="$CHART"
         fi
