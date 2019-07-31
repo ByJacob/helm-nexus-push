@@ -17,7 +17,6 @@ Flags:
   -u, --username string                 Username for authenticated repo (assumes anonymous access if unspecified)
   -p, --password string                 Password for authenticated repo (prompts if unspecified and -u specified)
   --package-parameters "strings"        Add more parameters for packages a chart
-  --debug                               Enable debug mode (use set -x)
 EOF
 }
 
@@ -55,9 +54,6 @@ do
                 shift
                 PACKAGE_PARAMETERS=$1
             fi
-            ;;
-        --debug)
-            set -x
             ;;
         *)
             POSITIONAL_ARGS+=("$1")
