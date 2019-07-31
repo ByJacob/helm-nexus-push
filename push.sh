@@ -131,10 +131,8 @@ case "$2" in
         fi
 
         echo "Pushing $CHART to repo $REPO_URL"
-        curl -is -u "$AUTH" "$REPO_URL" --upload-file "$CHART_PACKAGE" | indent
 
         NEXUS_RESPONSE=$(curl -is -u "$AUTH" "$REPO_URL" --upload-file "$CHART_PACKAGE" | indent)
-        # Generate error code if 400-505
         if $(echo $nexus_response | grep -q 'HTTP/1.1 400'); then
             echo "${CHART_PACKAGE} already exists in ${REPO_URL}"
             echo $nexus_response | grep 'HTTP/1.1 400'
@@ -142,8 +140,11 @@ case "$2" in
         elif $(echo $nexus_response | grep 'HTTP/1.1' | egrep -q [401-505]); then
             echo $nexus_response | egrep 'HTTP/1.1 [401-505]'
             exit 1
-        else
+        elif $(echo $nexus_response | grep 'HTTP/1.1' | egrep -q [200-299]); then
             echo "${CHART_PACKAGE} uploaded successfully"
+        else
+            echo "Something is wrong...."
+            echo $nexus_response
         fi
         ;;
 esac
