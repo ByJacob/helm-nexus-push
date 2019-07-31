@@ -133,18 +133,12 @@ case "$2" in
         echo "Pushing $CHART to repo $REPO_URL"
 
         NEXUS_RESPONSE=$(curl -is -u "$AUTH" "$REPO_URL" --upload-file "$CHART_PACKAGE" | indent)
-        if $(echo $NEXUS_RESPONSE | grep -q 'HTTP/1.1 400'); then
-            echo "${CHART_PACKAGE} already exists in ${REPO_URL}"
-            echo $NEXUS_RESPONSE | grep 'HTTP/1.1 400'
-            exit 2
-        elif $(echo $NEXUS_RESPONSE | grep 'HTTP/1.1' | egrep -q [401-505]); then
-            echo $NEXUS_RESPONSE | egrep 'HTTP/1.1 [401-505]'
-            exit 1
-        elif $(echo $NEXUS_RESPONSE | grep 'HTTP/1.1' | egrep -q [200-299]); then
+        if $(echo $NEXUS_RESPONSE | egrep -q "HTTP/1.1 [2][0-9][0-9]"); then
             echo "${CHART_PACKAGE} uploaded successfully"
         else
             echo "Something is wrong...."
             echo $NEXUS_RESPONSE
+            exit 1
         fi
         ;;
 esac
