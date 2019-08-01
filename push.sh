@@ -125,6 +125,8 @@ case "$2" in
         fi
 
         if [[ -d "${CHART:-}" ]]; then
+            helm repo update
+            helm dependency update
             CHART_PACKAGE="$(helm package $PACKAGE_PARAMETERS "$CHART" | cut -d":" -f2 | tr -d '[:space:]')"
         else
             CHART_PACKAGE="$CHART"
